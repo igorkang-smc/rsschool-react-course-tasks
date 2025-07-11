@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import Spinner from './Spinner';
 
 interface Character {
   id: number;
@@ -20,7 +21,11 @@ class CharacterList extends Component<CharacterListProps> {
 
     return (
       <section className="min-h-[300px]">
-        {isLoading && <p>Loading...</p>}
+        {isLoading && (
+          <div className="flex justify-center items-center min-h-[80px]">
+            <Spinner />
+          </div>
+        )}
         {error && <p className="text-red-600">{error}</p>}
         {!isLoading && !error && (
           <ul className="space-y-2">
