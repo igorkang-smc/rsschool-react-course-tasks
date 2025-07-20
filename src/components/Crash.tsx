@@ -1,9 +1,14 @@
 import { Component } from 'react';
 
-class Crash extends Component {
+class Crash extends Component<{ shouldCrash?: boolean }> {
+  componentDidMount() {
+    if (this.props.shouldCrash) {
+      throw new Error('User triggered error');
+    }
+  }
+
   render() {
-    throw new Error('User triggered error');
-    return null;
+    return this.props.shouldCrash ? null : <div>Component did not crash</div>;
   }
 }
 

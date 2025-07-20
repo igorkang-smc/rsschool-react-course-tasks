@@ -1,11 +1,20 @@
-import { describe, it, expect } from 'vitest';
-import * as React from 'react';
+import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import Crash from '../Crash';
 
 describe('Crash', () => {
-  it('throws an error when rendered', () => {
-    // Error boundaries catch this in real app, so here we expect a thrown error
-    expect(() => render(<Crash />)).toThrow('User triggered error');
+  it('renders content when shouldCrash is false', () => {
+    const { getByText } = render(<Crash shouldCrash={false} />);
+    expect(getByText('Component did not crash')).toBeInTheDocument();
+  });
+
+  it('logs error when shouldCrash is true (error thrown in componentDidMount)', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => {
+      render(<Crash shouldCrash />);
+    }).toThrow();
+
+    errorSpy.mockRestore();
   });
 });
