@@ -25,7 +25,11 @@ interface Task1AppState {
 
 const LOCAL_STORAGE_KEY = 'searchTerm';
 
-class Task1_App extends Component<Record<string, never>, Task1AppState> {
+interface Task1_AppProps {
+  skipAbort?: boolean;
+}
+
+class Task1_App extends Component<Task1_AppProps, Task1AppState> {
   private controller: AbortController | null = null;
 
   constructor(props: Record<string, never>) {
@@ -48,8 +52,10 @@ class Task1_App extends Component<Record<string, never>, Task1AppState> {
   }
 
   fetchCharacters = async (term: string) => {
-    this.controller?.abort();
-    this.controller = new AbortController();
+    if (!this.props.skipAbort) {
+      this.controller?.abort();
+      this.controller = new AbortController();
+    }
 
     this.setState({ isLoading: true, error: null });
 
@@ -61,10 +67,17 @@ class Task1_App extends Component<Record<string, never>, Task1AppState> {
       );
 
     try {
-      const res = await fetch(url, { signal: this.controller.signal });
+      const fetchOptions: RequestInit | undefined =
+        this.props.skipAbort || !this.controller
+          ? undefined
+          : { signal: this.controller.signal };
+
+      const res = await fetch(url, fetchOptions);
+
       if (!res.ok) {
         throw new Error(`Request failed: ${res.status} ${res.statusText}`);
       }
+
       const data = (await res.json()) as { results: Character[] };
       this.setState({ characters: data.results });
     } catch (err) {
